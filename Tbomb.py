@@ -7,11 +7,10 @@
 #########################################
 
 import time
-import requests
-import sys
+import random
 import os
 import shutil
-import json
+import sys
 
 # Get Rows and Columns of Screen
 columns = shutil.get_terminal_size().columns
@@ -22,7 +21,6 @@ def psb(z, end="\n"):
         sys.stdout.flush()
         time.sleep(0.01)
 
-# Check Python Version, as Python < 3.11 Does not support 3.11 encryption
 def checkPy():
     major = sys.version_info.major
     minor = sys.version_info.minor
@@ -31,7 +29,6 @@ def checkPy():
         print("[\033[92m*\033[37m] Update Your Python Using the Command Below:\n\n    pkg reinstall python\n")
         sys.exit()
 
-# Show New Message from Author
 def showAuthorMsg(msg):
     print()
     print("\033[94m-"*columns, end="")
@@ -45,7 +42,6 @@ def showAuthorMsg(msg):
     input("\n    \033[92m[\033[37m*\033[92m] \033[37mPress Enter To Continue...")
     logo()
 
-# Check Update
 def update():
     try:
         toolVersion = json.loads(open("./more/.version", "r").read())["version"]
@@ -68,7 +64,6 @@ def update():
     mainVersion = parsedData["version"]
     newMsg = parsedData["message"]
     
-    # If Tool Version Is not Same, Update Tool
     if (toolVersion != mainVersion):
         psb("\n    \033[92m[\033[37m!\033[92m] \033[37mTool Update Found!")
         time.sleep(0.5)
@@ -86,7 +81,6 @@ def update():
         if (authorMsg != newMsg) and (newMsg != "blank"):
             showAuthorMsg(newMsg)
 
-# Logo
 def logo():
     os.system("clear")
     print("\033[94m┌────────────────────────────────────────┐".center(columns+5))
@@ -101,25 +95,22 @@ def logo():
     print("│ \033[95mCoder  : HunterSl4d3              \033[37mV5.0 \033[94m│".center(columns+15))
     print("\033[94m└────────────────────────────────────────┘".center(columns+5))
 
-
-# Options Banner
 def banner():
-    amount = str(main.amount)
-    # 21 - 1(lenOfAmount) = 20....
-    amount = amount + (" " * (21-len(amount)))
+    global number, amount, delay
+    amount_str = str(amount)
+    amount_str = amount_str + (" " * (21-len(amount_str)))
     
-    print("\033[95m-" * (columns), end = "")
-    print(("\033[92mTarget  : \033[37m0" + main.number + "          ").center(columns + 10))
-    print(("\033[92mAmount  : \033[37m" + amount).center(columns + 10))
+    print("\033[95m-" * (columns), end="")
+    print(("\033[92mTarget  : \033[37m0" + number + "          ").center(columns + 10))
+    print(("\033[92mAmount  : \033[37m" + amount_str).center(columns + 10))
     print("\033[92mProcess : \033[37mStarted               ".center(columns + 10))
     print("\033[92mNote    : \033[37mPress ctrl + z To Stop".center(columns + 10))
-    print("\033[95m-" * (columns), end = "")
+    print("\033[95m-" * (columns), end="")
     print("\n")
 
-# Check SMS Sent and Process
 def check(sent):
-    amount = main.amount
-    delay = main.delay
+    global amount
+    delay = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Delay Between SMS (in seconds):> \033[37m"))
     
     localTime = time.localtime()
     current_time = time.strftime("%I:%M:%S", localTime)
@@ -129,107 +120,73 @@ def check(sent):
     if (sent == amount):
         psb("\n\n\033[92m    [\033[37m*\033[92m] Bombing Finished!")
         psb("\033[92m    [\033[37m*\033[92m] Amount : \033[37m" + str(amount))
-        psb("\033[92m    [\033[37m*\033[92m] Target : \033[37m0" + main.number)
+        psb("\033[92m    [\033[37m*\033[92m] Target : \033[37m0" + number)
         psb("\033[92m    [\033[37m*\033[92m] From   : \033[37mToxicBomber\n")
         time.sleep(0.6)
         print("\033[92m[\033[93m★\033[92m] Thanks For Using Our Tool \033[92m[\033[93m★\033[92m]".center(columns + 30))
         print("\033[37m")
-        
         return True
     else:
         time.sleep(delay)
         return False
 
-# Get Target Number
 def getNumber():
-    num = input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Target (\033[92mWithout +88\033[37m):> \033[37m")
-    if not num.isdigit():
+    number = input("\n    \033[92m[\033[37m*\033
+def getNumber():
+    number = input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Target (\033[92mWithout +88\033[37m):> \033[37m")
+    if not number.isdigit():
         psb("\n    \033[92m[\033[91m!\033[92m] \033[37mPlease Enter a Correct Number!")
-        num = getNumber()
-    if not (len(num) == 11):
+        return getNumber()
+    if not (len(number) == 11):
         psb("\n    \033[92m[\033[91m!\033[92m] \033[37mPlease Enter 11 Digit Number!")
-        num = getNumber()
+        return getNumber()
     
-    return num
+    return number
 
-# Function for Call Bombing
-def call_bomb(number):
-    try:
-        response = requests.post(
-            "https://api.callservice.com/v1/call",
-            headers={"Authorization": "Bearer YOUR_API_KEY"},
-            json={"to": number, "from": "YOUR_NUMBER", "message": "This is a call bomb!"}
-        )
-        if response.status_code == 200:
-            print(f"Call to {number} sent successfully.")
-            return True
-        else:
-            print(f"Failed to send call to {number}. Status code: {response.status_code}")
-            return False
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return False
-
-# Function for SMS Bombing
-def sms_bomb(number, amount):
-    for i in range(amount):
-        try:
-            response = requests.post(
-                "https://api.smsservice.com/v1/send",
-                headers={"Authorization": "Bearer YOUR_API_KEY"},
-                json={"to": number, "message": "This is an SMS bomb!"}
-            )
-            if response.status_code == 200:
-                print(f"SMS sent to {number}.")
-            else:
-                print(f"Failed to send SMS to {number}. Status code: {response.status_code}")
-        except Exception as e:
-            print(f"An error occurred: {e}")
-        time.sleep(1)  # Delay between messages
-
-# Main Menu
-def main_menu():
-    os.system("clear")
-    print("\033[94m┌─────────────────────────────────────────────────────┐".center(columns+5))
-    print("\033[94m│ \033[92mWelcome to ToxicBomber v5.0.0                        \033[94m│".center(columns+5))
-    print("\033[94m│ \033[92mSelect the Bombing Type:                            \033[94m│".center(columns+5))
-    print("\033[94m│ \033[95m1. SMS Bombing                                    \033[94m│".center(columns+5))
-    print("\033[94m│ \033[95m2. Call Bombing                                   \033[94m│".center(columns+5))
-    print("\033[94m└─────────────────────────────────────────────────────┘".center(columns+5))
-    
-    choice = input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter your choice (1 or 2):> \033[37m")
-    
-    if choice == "1":
-        sms_bombing_process()
-    elif choice == "2":
-        call_bombing_process()
-    else:
-        psb("\n    \033[92m[\033[91m!\033[92m] \033[37mInvalid choice! Please select 1 or 2.\n")
-        time.sleep(1)
-        main_menu()
-
-# SMS Bombing Process
-def sms_bombing_process():
-    global number, amount
-    number = getNumber()
-    amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of SMS to Send:> \033[37m"))
-    banner()
-    
-    # Call the SMS bombing function
-    sms_bomb(number, amount)
-
-# Call Bombing Process
 def call_bombing_process():
     global number, amount
     number = getNumber()
     amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of Calls to Make:> \033[37m"))
     banner()
     
-    for i in range(amount):
-        call_bomb(number)
-        time.sleep(5)  # Delay between calls
+    sent_calls = 0
+    while sent_calls < amount:
+        if call_bomb(number):
+            sent_calls += 1
+        check(sent_calls)
 
-# Main Entry Point
+def sms_bombing_process():
+    global number, amount
+    number = getNumber()
+    amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of SMS to Send:> \033[37m"))
+    delay = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Delay Between SMS (in seconds):> \033[37m"))
+    banner()
+    
+    sent_sms = 0
+    while sent_sms < amount:
+        # Simulate sending an SMS
+        psb(f"\nSimulating SMS to {number}...")
+        time.sleep(delay)  # Simulate delay between SMS
+        sent_sms += 1
+        check(sent_sms)
+
+def main_menu():
+    global number, amount
+    os.system("clear")
+    logo()
+    print("\n    \033[92m[\033[37m*\033[92m] \033[37mSelect the type of bombing:")
+    print("    \033[92m[\033[37m1\033[92m] \033[37mSMS Bombing")
+    print("    \033[92m[\033[37m2\033[92m] \033[37mCall Bombing")
+    choice = input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter your choice (1 or 2):> \033[37m")
+
+    if choice == '1':
+        sms_bombing_process()
+    elif choice == '2':
+        call_bombing_process()
+    else:
+        psb("\n    \033[92m[\033[91m!\033[92m] \033[37mInvalid Choice! Exiting...")
+        sys.exit()
+
 if __name__ == "__main__":
     checkPy()
     update()
