@@ -1,9 +1,9 @@
 #########################################
 # ToxicBomber
-# A Bangladeshi SMS Bomber Tool
+# A Bangladeshi SMS and Call Bomber Tool
 # Author: ToxicNoob Inc.
 # GitHub: https://github.com/Toxic-Noob
-# Version: 4.1.0
+# Version: 5.0.0
 #########################################
 
 import time
@@ -13,7 +13,7 @@ import os
 import shutil
 import json
 
-#Get Rows and Columns of Screen
+# Get Rows and Columns of Screen
 columns = shutil.get_terminal_size().columns
 
 def psb(z, end="\n"):
@@ -31,7 +31,6 @@ def checkPy():
         print("[\033[92m*\033[37m] Update Your Python Using the Command Below:\n\n    pkg reinstall python\n")
         sys.exit()
 
-
 # Show New Message from Author
 def showAuthorMsg(msg):
     print()
@@ -46,8 +45,7 @@ def showAuthorMsg(msg):
     input("\n    \033[92m[\033[37m*\033[92m] \033[37mPress Enter To Continue...")
     logo()
 
-
-#Check Update
+# Check Update
 def update():
     try:
         toolVersion = json.loads(open("./more/.version", "r").read())["version"]
@@ -88,8 +86,7 @@ def update():
         if (authorMsg != newMsg) and (newMsg != "blank"):
             showAuthorMsg(newMsg)
 
-
-#Logo
+# Logo
 def logo():
     os.system("clear")
     print("\033[94m┌────────────────────────────────────────┐".center(columns+5))
@@ -99,11 +96,10 @@ def logo():
     print("\033[94m│     \033[92m ▘▝▀ ▘ ▘▀▘▝▀ ▀▀ ▝▀ ▘▝ ▘▀▀ ▝▀▘▘  \033[94m   │".center(columns+15))
     print("\033[94m│                              \033[94m          │".center(columns+9))
     print("\033[94m│ \033[95mAuthor : ToxicNoob Inc.                \033[94m│".center(columns+15))
-    print("│ \033[95mTool   : Unlimited SMS Bomber          \033[94m│".center(columns+9))
+    print("│ \033[95mTool   : SMS and Call Bomber           \033[94m│".center(columns+9))
     print("│ \033[95mGitHub : https://github.com/Toxic-Noob \033[94m│".center(columns+9))
-    print("│ \033[95mCoder  : HunterSl4d3              \033[37mV4.1 \033[94m│".center(columns+15))
+    print("│ \033[95mCoder  : HunterSl4d3              \033[37mV5.0 \033[94m│".center(columns+15))
     print("\033[94m└────────────────────────────────────────┘".center(columns+5))
-
 
 # Options Banner
 def banner():
@@ -119,8 +115,7 @@ def banner():
     print("\033[95m-" * (columns), end = "")
     print("\n")
 
-
-#Check SMS Sent and Process
+# Check SMS Sent and Process
 def check(sent):
     amount = main.amount
     delay = main.delay
@@ -144,8 +139,7 @@ def check(sent):
         time.sleep(delay)
         return False
 
-
-#Get Target Number
+# Get Target Number
 def getNumber():
     number = input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Target (\033[92mWithout +88\033[37m):> \033[37m")
     if not number.isdigit():
@@ -157,59 +151,89 @@ def getNumber():
     
     return number
 
+# Function for Call Bombing
+def call_bomb(number):
+    try:
+        response = requests.post(
+            "https://api.callservice.com/v1/call",
+            headers={"Authorization": "Bearer YOUR_API_KEY"},
+           
+            json={"to": number, "from": "YOUR_NUMBER", "message": "This is a call bomb!"}
+        )
+        if response.status_code == 200:
+            print(f"Call to {number} sent successfully.")
+            return True
+        else:
+            print(f"Failed to send call to {number}. Status code: {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False
 
-#Main    
-def main():
+# Function for SMS Bombing (placeholder)
+def sms_bomb(number, amount):
+    for i in range(amount):
+        try:
+            response = requests.post(
+                "https://api.smsservice.com/v1/send",
+                headers={"Authorization": "Bearer YOUR_API_KEY"},
+                json={"to": number, "message": "This is an SMS bomb!"}
+            )
+            if response.status_code == 200:
+                print(f"SMS sent to {number}.")
+            else:
+                print(f"Failed to send SMS to {number}. Status code: {response.status_code}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+        time.sleep(1)  # Delay between messages
+
+# Main Menu
+def main_menu():
+    os.system("clear")
+    print("\033[94m┌─────────────────────────────────────────────────────┐".center(columns+5))
+    print("\033[94m│ \033[92mWelcome to ToxicBomber v5.0.0                        \033[94m│".center(columns+5))
+    print("\033[94m│ \033[92mSelect the Bombing Type:                            \033[94m│".center(columns+5))
+    print("\033[94m│ \033[95m1. SMS Bombing                                    \033[94m│".center(columns+5))
+    print("\033[94m│ \033[95m2. Call Bombing                                   \033[94m│".center(columns+5))
+    print("\033[94m└─────────────────────────────────────────────────────┘".center(columns+5))
+    
+    choice = input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter your choice (1 or 2):> \033[37m")
+    
+    if choice == "1":
+        sms_bombing_process()
+    elif choice == "2":
+        call_bombing_process()
+    else:
+        psb("\n    \033[92m[\033[91m!\033[92m] \033[37mInvalid choice! Please select 1 or 2.\n")
+        time.sleep(1)
+        main_menu()
+
+# SMS Bombing Process
+def sms_bombing_process():
     number = getNumber()
-    number = number[-10:]
-    main.number = number
-    
-    amount = input("    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount (\033[92mDefault: 10\033[37m):> \033[37m")
-    try:
-        amount = int(amount)
-    except:
-        amount = 10
-    
+    amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of SMS to Send:> \033[37m"))
     main.amount = amount
-    
-    delay = input("    \033[92m[\033[37m*\033[92m] \033[37mEnter Time(\033[92mSec\033[37m) Delay (\033[92mDefault: 2s\033[37m):> \033[37m")
-    try:
-        delay = int(delay)
-    except:
-        delay = 2
-    
-    main.delay = delay
-    
-    time.sleep(1)
-    logo()
+    main.number = number
     banner()
-    sent = 0
     
-    items = RUNNABLE_ITEMS
-    finished = False
-    
-    # Running through all apis using Global Variables
-    allFuncs = globals()
-    if check(sent):
-        sys.exit()
-    
-    while True:
-        for i in range(1, items+1):
-            success = allFuncs["api_"+str(i)](number)
-            if (success):
-                sent += 1
-                if(check(sent)):
-                    finished = True
-                    break
-            
-        if (finished):
-            break
+    # Call the SMS bombing function (placeholder)
+    sms_bomb(number, amount)
 
+# Call Bombing Process
+def call_bombing_process():
+    number = getNumber()
+    amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of Calls to Make:> \033[37m"))
+    main.amount = amount
+    main.number = number
+    banner()
+    
+    for i in range(amount):
+        call_bomb(number)
+        time.sleep(5)  # Delay between calls
 
-# Start Ruuning Tool
-if (__name__ == "__main__"):
+# Main Entry Point
+if __name__ == "__main__":
     checkPy()
-    from more.data import *
-    logo()
     update()
-    main()
+    main_menu()
+
