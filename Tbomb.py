@@ -16,10 +16,6 @@ import json
 # Get Rows and Columns of Screen
 columns = shutil.get_terminal_size().columns
 
-# Global Variables
-amount = 0
-number = ""
-
 def psb(z, end="\n"):
     for e in z + end:
         sys.stdout.write(e)
@@ -96,6 +92,7 @@ def logo():
     print("\033[94m┌────────────────────────────────────────┐".center(columns+5))
     print("\033[94m│     \033[92m▀▛▘     ▗    ▛▀▖       ▌        \033[94m   │".center(columns+15))
     print("\033[94m│     \033[92m ▌▞▀▖▚▗▘▄ ▞▀▖▙▄▘▞▀▖▛▚▀▖▛▀▖▞▀▖▙▀▖\033[94m   │".center(columns+15))
+    print("\033[94m│     \033[
     print("\033[94m│     \033[92m ▌▌ ▌▗▚ ▐ ▌ ▖▌ ▌▌ ▌▌▐ ▌▌ ▌▛▀ ▌  \033[94m   │".center(columns+15))
     print("\033[94m│     \033[92m ▘▝▀ ▘ ▘▀▘▝▀ ▀▀ ▝▀ ▘▝ ▘▀▀ ▝▀▘▘  \033[94m   │".center(columns+15))
     print("\033[94m│                              \033[94m          │".center(columns+9))
@@ -107,12 +104,13 @@ def logo():
 
 # Options Banner
 def banner():
-    amt_str = str(amount)
-    amt_str = amt_str + (" " * (21-len(amt_str)))
+    amount = str(main.amount)
+    # 21 - 1(lenOfAmount) = 20....
+    amount = amount + (" " * (21-len(amount)))
     
     print("\033[95m-" * (columns), end = "")
-    print(("\033[92mTarget  : \033[37m0" + number + "          ").center(columns + 10))
-    print(("\033[92mAmount  : \033[37m" + amt_str).center(columns + 10))
+    print(("\033[92mTarget  : \033[37m0" + main.number + "          ").center(columns + 10))
+    print(("\033[92mAmount  : \033[37m" + amount).center(columns + 10))
     print("\033[92mProcess : \033[37mStarted               ".center(columns + 10))
     print("\033[92mNote    : \033[37mPress ctrl + z To Stop".center(columns + 10))
     print("\033[95m-" * (columns), end = "")
@@ -120,7 +118,8 @@ def banner():
 
 # Check SMS Sent and Process
 def check(sent):
-    delay = 1  # Default delay, can be adjusted
+    amount = main.amount
+    delay = main.delay
     
     localTime = time.localtime()
     current_time = time.strftime("%I:%M:%S", localTime)
@@ -130,7 +129,7 @@ def check(sent):
     if (sent == amount):
         psb("\n\n\033[92m    [\033[37m*\033[92m] Bombing Finished!")
         psb("\033[92m    [\033[37m*\033[92m] Amount : \033[37m" + str(amount))
-        psb("\033[92m    [\033[37m*\033[92m] Target : \033[37m0" + number)
+        psb("\033[92m    [\033[37m*\033[92m] Target : \033[37m0" + main.number)
         psb("\033[92m    [\033[37m*\033[92m] From   : \033[37mToxicBomber\n")
         time.sleep(0.6)
         print("\033[92m[\033[93m★\033[92m] Thanks For Using Our Tool \033[92m[\033[93m★\033[92m]".center(columns + 30))
@@ -148,7 +147,6 @@ def getNumber():
         psb("\n    \033[92m[\033[91m!\033[92m] \033[37mPlease Enter a Correct Number!")
         num = getNumber()
     if not (len(num) == 11):
-        psb("\n    \033[92
         psb("\n    \033[92m[\033[91m!\033[92m] \033[37mPlease Enter 11 Digit Number!")
         num = getNumber()
     
