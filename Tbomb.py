@@ -6,6 +6,7 @@
 # Version: 5.0.0
 #########################################
 
+
 import time
 import requests
 import sys
@@ -139,96 +140,81 @@ def check(sent):
         time.sleep(delay)
         return False
 
-def call_bomb(number):
-    try:
-        response = requests.post(
-            "https://api.callservice.com/v1/call",
-            headers={"Authorization": "Bearer YOUR_API_KEY"},
-            json={"to": number, "from": "YOUR_NUMBER", "message": "This is a call bomb!"}
-        )
-        if response
-        if response.status_code == 200:
-            print(f"Call to {number} sent successfully.")
-            return True
-        else:
-            print(f"Failed to send call to {number}. Status code: {response.status_code}")
-            return False
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return False
-
-def call_bombing_process():
-    number = getNumber()
-    amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of Calls to Make:> \033[37m"))
+# Get Target Number
+def getNumber():
+    number = input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Target (\033[92mWithout +88\033[37m):> \033[37m")
+    if not number.isdigit():
+        psb("\n    \033[92m[\033[91m!\
+    if not number.isdigit():
+        psb("\n    \033[92m[\033[91m!\033[92m] \033[37mPlease Enter a Correct Number!")
+        number = getNumber()
+    if not (len(number) == 11):
+        psb("\n    \033[92m[\033[91m!\033[92m] \033[37mPlease Enter 11 Digit Number!")
+        number = getNumber()
     
-    main.number = number
-    main.amount = amount
-    main.delay = 1  # Default delay in seconds between calls
+    return number
 
-    banner()
-    
-    calls_sent = 0
-    for _ in range(amount):
-        success = call_bomb(number)
-        if success:
-            calls_sent += 1
-        if check(calls_sent):
-            break
-
+# Function for SMS Bombing
 def sms_bombing_process():
-    number = getNumber()
-    amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of Messages to Send:> \033[37m"))
-    
-    main.number = number
-    main.amount = amount
-    main.delay = 2  # Default delay in seconds between messages
+    global main
+    main.number = getNumber()
+    main.amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of SMS to Send:> \033[37m"))
+    main.delay = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Delay Between SMS (in seconds):> \033[37m"))
 
     banner()
     
-    messages_sent = 0
-    for _ in range(amount):
-        success = send_sms(number)  # Assuming a similar function for sending SMS exists
-        if success:
-            messages_sent += 1
-        if check(messages_sent):
-            break
+    sent = 0
+    while sent < main.amount:
+        if send_sms(main.number):
+            sent += 1
+        check(sent)
+    print("\033[92m[\033[93m★\033[92m] SMS Bombing Complete \033[92m[\033[93m★\033[92m]".center(columns + 30))
+    print("\033[37m")
 
-def send_sms(number):
-    try:
-        response = requests.post(
-            "https://api.smsservice.com/v1/send",
-            headers={"Authorization": "Bearer YOUR_API_KEY"},
-            json={"to": number, "message": "This is a SMS bomb!"}
-        )
-        if response.status_code == 200:
-            print(f"SMS to {number} sent successfully.")
-            return True
-        else:
-            print(f"Failed to send SMS to {number}. Status code: {response.status_code}")
-            return False
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return False
+# Function for Call Bombing
+def call_bombing_process():
+    global main
+    main.number = getNumber()
+    main.amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of Calls to Make:> \033[37m"))
+    main.delay = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Delay Between Calls (in seconds):> \033[37m"))
 
+    banner()
+
+    sent = 0
+    while sent < main.amount:
+        if call_bomb(main.number):
+            sent += 1
+        time.sleep(main.delay)
+    print("\033[92m[\033[93m★\033[92m] Call Bombing Complete \033[92m[\033[93m★\033[92m]".center(columns + 30))
+    print("\033[37m")
+
+# Main Menu
 def main_menu():
     os.system("clear")
     print("\033[94m┌────────────────────────────────────────┐".center(columns+5))
-    print("\033[94m│   \033[92mToxicBomber \033[94m   │".center(columns+15))
-    print("\033[94m│   \033[92m1. SMS Bombing   \033[94m   │".center(columns+15))
-    print("\033[94m│   \033[92m2. Call Bombing  \033[94m   │".center(columns+15))
-    print("\033[94m│   \033[92m3. Exit          \033[94m   │".center(columns+15))
+    print("\033[94m│     \033[92m▀▛▘     ▗    ▛▀▖       ▌        \033[94m   │".center(columns+15))
+    print("\033[94m│     \033[92m ▌▞▀▖▚▗▘▄ ▞▀▖▙▄▘▞▀▖▛▚▀▖▛▀▖▞▀▖▙▀▖\033[94m   │".center(columns+15))
+    print("\033[94m│     \033[92m ▌▌ ▌▗▚ ▐ ▌ ▖▌ ▌▌ ▌▌▐ ▌▌ ▌▛▀ ▌  \033[94m   │".center(columns+15))
+    print("\033[94m│     \033[92m ▘▝▀ ▘ ▘▀▘▝▀ ▀▀ ▝▀ ▘▝ ▘▀▀ ▝▀▘▘  \033[94m   │".center(columns+15))
+    print("\033[94m│                              \033[94m          │".center(columns+9))
+    print("\033[94m│ \033[95mAuthor : ToxicNoob Inc.                \033[94m│".center(columns+15))
+    print("│ \033[95mTool   : SMS and Call Bomber           \033[94m│".center(columns+9))
+    print("│ \033[95mGitHub : https://github.com/Toxic-Noob \033[94m│".center(columns+9))
+    print("│ \033[95mCoder  : HunterSl4d3              \033[37mV5.0 \033[94m│".center(columns+15))
     print("\033[94m└────────────────────────────────────────┘".center(columns+5))
-
+    
+    print("\n    \033[92m[\033[37m*\033[92m] \033[37mSelect an Option:")
+    print("    \033[92m[\033[37m1\033[92m] \033[37mSMS Bombing")
+    print("    \033[92m[\033[37m2\033[92m] \033[37mCall Bombing")
+    
     choice = input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter your choice (1 or 2):> \033[37m")
     
-    if choice == '1':
+    if choice == "1":
         sms_bombing_process()
-    elif choice == '2':
+    elif choice == "2":
         call_bombing_process()
-    elif choice == '3':
-        sys.exit()
     else:
-        print("\n    \033[92m[\033[91m!\033[92m] \033[37mInvalid Choice! Please choose 1 or 2.")
+        psb("\n    \033[92m[\033[91m!\033[92m] \033[37mInvalid Choice! Please Select 1 or 2.")
         time.sleep(1)
         main_menu()
 
