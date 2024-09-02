@@ -16,6 +16,10 @@ import json
 # Get Rows and Columns of Screen
 columns = shutil.get_terminal_size().columns
 
+# Global Variables
+amount = 0
+number = ""
+
 def psb(z, end="\n"):
     for e in z + end:
         sys.stdout.write(e)
@@ -103,13 +107,12 @@ def logo():
 
 # Options Banner
 def banner():
-    amount = str(main.amount)
-    # 21 - 1(lenOfAmount) = 20....
-    amount = amount + (" " * (21-len(amount)))
+    amt_str = str(amount)
+    amt_str = amt_str + (" " * (21-len(amt_str)))
     
     print("\033[95m-" * (columns), end = "")
-    print(("\033[92mTarget  : \033[37m0" + main.number + "          ").center(columns + 10))
-    print(("\033[92mAmount  : \033[37m" + amount).center(columns + 10))
+    print(("\033[92mTarget  : \033[37m0" + number + "          ").center(columns + 10))
+    print(("\033[92mAmount  : \033[37m" + amt_str).center(columns + 10))
     print("\033[92mProcess : \033[37mStarted               ".center(columns + 10))
     print("\033[92mNote    : \033[37mPress ctrl + z To Stop".center(columns + 10))
     print("\033[95m-" * (columns), end = "")
@@ -117,8 +120,7 @@ def banner():
 
 # Check SMS Sent and Process
 def check(sent):
-    amount = main.amount
-    delay = main.delay
+    delay = 1  # Default delay, can be adjusted
     
     localTime = time.localtime()
     current_time = time.strftime("%I:%M:%S", localTime)
@@ -128,7 +130,7 @@ def check(sent):
     if (sent == amount):
         psb("\n\n\033[92m    [\033[37m*\033[92m] Bombing Finished!")
         psb("\033[92m    [\033[37m*\033[92m] Amount : \033[37m" + str(amount))
-        psb("\033[92m    [\033[37m*\033[92m] Target : \033[37m0" + main.number)
+        psb("\033[92m    [\033[37m*\033[92m] Target : \033[37m0" + number)
         psb("\033[92m    [\033[37m*\033[92m] From   : \033[37mToxicBomber\n")
         time.sleep(0.6)
         print("\033[92m[\033[93m★\033[92m] Thanks For Using Our Tool \033[92m[\033[93m★\033[92m]".center(columns + 30))
@@ -141,15 +143,16 @@ def check(sent):
 
 # Get Target Number
 def getNumber():
-    number = input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Target (\033[92mWithout +88\033[37m):> \033[37m")
-    if not number.isdigit():
+    num = input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Target (\033[92mWithout +88\033[37m):> \033[37m")
+    if not num.isdigit():
         psb("\n    \033[92m[\033[91m!\033[92m] \033[37mPlease Enter a Correct Number!")
-        number = getNumber()
-    if not (len(number) == 11):
+        num = getNumber()
+    if not (len(num) == 11):
+        psb("\n    \033[92
         psb("\n    \033[92m[\033[91m!\033[92m] \033[37mPlease Enter 11 Digit Number!")
-        number = getNumber()
+        num = getNumber()
     
-    return number
+    return num
 
 # Function for Call Bombing
 def call_bomb(number):
@@ -157,7 +160,6 @@ def call_bomb(number):
         response = requests.post(
             "https://api.callservice.com/v1/call",
             headers={"Authorization": "Bearer YOUR_API_KEY"},
-           
             json={"to": number, "from": "YOUR_NUMBER", "message": "This is a call bomb!"}
         )
         if response.status_code == 200:
@@ -170,7 +172,7 @@ def call_bomb(number):
         print(f"An error occurred: {e}")
         return False
 
-# Function for SMS Bombing (placeholder)
+# Function for SMS Bombing
 def sms_bomb(number, amount):
     for i in range(amount):
         try:
@@ -210,21 +212,19 @@ def main_menu():
 
 # SMS Bombing Process
 def sms_bombing_process():
+    global number, amount
     number = getNumber()
     amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of SMS to Send:> \033[37m"))
-    main.amount = amount
-    main.number = number
     banner()
     
-    # Call the SMS bombing function (placeholder)
+    # Call the SMS bombing function
     sms_bomb(number, amount)
 
 # Call Bombing Process
 def call_bombing_process():
+    global number, amount
     number = getNumber()
     amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of Calls to Make:> \033[37m"))
-    main.amount = amount
-    main.number = number
     banner()
     
     for i in range(amount):
@@ -236,4 +236,3 @@ if __name__ == "__main__":
     checkPy()
     update()
     main_menu()
-
