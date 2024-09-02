@@ -13,7 +13,6 @@ import sys
 import os
 import shutil
 import json
-import random
 
 # Get Rows and Columns of Screen
 columns = shutil.get_terminal_size().columns
@@ -64,7 +63,7 @@ def update():
     except:
         psb("\n    \033[92m[\033[91m!\033[92m] \033[37mPlease Connect To The Internet!")
         time.sleep(1)
-        l = input("\n    \033[92m[\033[37m*\033[92m] \033[37mPress Enter To Continue...")
+        input("\n    \033[92m[\033[37m*\033[92m] \033[37mPress Enter To Continue...")
         update()
     
     mainVersion = parsedData["version"]
@@ -98,18 +97,18 @@ def logo():
     print("\033[94m│     \033[92m ▘▝▀ ▘ ▘▀▘▝▀ ▀▀ ▝▀ ▘▝ ▘▀▀ ▝▀▘▘  \033[94m   │".center(columns+15))
     print("\033[94m│                              \033[94m          │".center(columns+9))
     print("\033[94m│ \033[95mAuthor : ToxicNoob Inc.                \033[94m│".center(columns+15))
-    print("│ \033[95mTool   : SMS and Call Bomber           \033[94m│".center(columns+9))
+    print("│ \033[95mTool   : Unlimited SMS & Call Bomber   \033[94m│".center(columns+9))
     print("│ \033[95mGitHub : https://github.com/Toxic-Noob \033[94m│".center(columns+9))
-    print("│ \033[95mCoder  : HunterSl4d3              \033[37mV5.0 \033[94m│".center(columns+15))
+    print("│ \033[95mCoder  : HunterSl4d3              \033[37mV4.1 \033[94m│".center(columns+15))
     print("\033[94m└────────────────────────────────────────┘".center(columns+5))
 
 # Options Banner
 def banner():
-    amount = str(main.amount)
+    amount = str(main["amount"])
     amount = amount + (" " * (21-len(amount)))
     
     print("\033[95m-" * (columns), end = "")
-    print(("\033[92mTarget  : \033[37m0" + main.number + "          ").center(columns + 10))
+    print(("\033[92mTarget  : \033[37m0" + main["number"] + "          ").center(columns + 10))
     print(("\033[92mAmount  : \033[37m" + amount).center(columns + 10))
     print("\033[92mProcess : \033[37mStarted               ".center(columns + 10))
     print("\033[92mNote    : \033[37mPress ctrl + z To Stop".center(columns + 10))
@@ -118,8 +117,8 @@ def banner():
 
 # Check SMS Sent and Process
 def check(sent):
-    amount = main.amount
-    delay = main.delay
+    amount = main["amount"]
+    delay = main["delay"]
     
     localTime = time.localtime()
     current_time = time.strftime("%I:%M:%S", localTime)
@@ -129,7 +128,7 @@ def check(sent):
     if (sent == amount):
         psb("\n\n\033[92m    [\033[37m*\033[92m] Bombing Finished!")
         psb("\033[92m    [\033[37m*\033[92m] Amount : \033[37m" + str(amount))
-        psb("\033[92m    [\033[37m*\033[92m] Target : \033[37m0" + main.number)
+        psb("\033[92m    [\033[37m*\033[92m] Target : \033[37m0" + main["number"])
         psb("\033[92m    [\033[37m*\033[92m] From   : \033[37mToxicBomber\n")
         time.sleep(0.6)
         print("\033[92m[\033[93m★\033[92m] Thanks For Using Our Tool \033[92m[\033[93m★\033[92m]".center(columns + 30))
@@ -152,93 +151,103 @@ def getNumber():
     
     return number
 
-# Function to Send SMS (Placeholder)
+# Function for SMS Bombing
 def send_sms(number):
     try:
         response = requests.post(
-            "https://api.smsservice.com/v1/send",
+            "https://api.smsservice.com/v1/sms",
             headers={"Authorization": "Bearer YOUR_API_KEY"},
             json={"to": number, "message": "This is an SMS bomb!"}
         )
         if response.status_code == 200:
-            return True
+            print(f"SMS to {number} sent successfully.")
         else:
-            print(f"Failed to send SMS to {number}. Status code:
             print(f"Failed to send SMS to {number}. Status code: {response.status_code}")
-            return False
     except Exception as e:
-        print(f"An error occurred: {e}")
-        return False
+        print(f"Error sending SMS: {e}")
 
 # Function for Call Bombing
-def call_bomb(number):
-    # List of SIM company numbers for calling
-    sim_numbers = ["+8801712345678", "+8801912345678", "+8801812345678"]  # Replace with actual SIM numbers
-    
-    # Choose a random number from the list
-    from_number = random.choice(sim_numbers)
-    
+def make_call(number):
     try:
         response = requests.post(
             "https://api.callservice.com/v1/call",
             headers={"Authorization": "Bearer YOUR_API_KEY"},
-            json={"to": number, "from": from_number, "message": "This is a call bomb!"}
+            json={"to": number, "message": "This is a call bomb!"}
         )
         if response.status_code == 200:
-            print(f"Call to {number} sent successfully.")
-            return True
+            print(f"Call to {number} initiated successfully.")
         else:
-            print(f"Failed to send call to {number}. Status code: {response.status_code}")
-            return False
+            print(f"Failed to initiate call to {number}. Status code: {response.status_code}")
     except Exception as e:
-        print(f"An error occurred: {e}")
-        return False
+        print(f"Error initiating call: {e}")
 
-# Main Menu
-def main_menu():
-    os.system("clear")
-    print("\033[94m┌────────────────────────────────────────┐".center(columns+5))
-    print("\033[94m│     \033[92mToxicBomber Tool Menu\033[94m        │".center(columns+5))
-    print("\033[94m│ \033[95m1. SMS Bombing\033[94m                 │".center(columns+5))
-    print("\033[94m│ \033[95m2. Call Bombing\033[94m                │".center(columns+5))
-    print("\033[94m└────────────────────────────────────────┘".center(columns+5))
+# Main Function
+def main():
+    print("\n    \033[92m[\033[37m*\033[92m] \033[37mSelect the type of bombing:")
+    print("    \033[92m1. \033[37mSMS Bombing")
+    print("    \033[92m2. \033[37mCall Bombing")
+    choice = input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter your choice (1/2):> \033[37m")
     
-    choice = input("\n[*] Enter your choice (1 or 2):> ")
+    if choice not in ["1", "2"]:
+        psb("\n    \033[92m[\033[91m!\033[92m] \033[37mInvalid choice! Please select 1 or 2.")
+        main()
     
-    if choice == '1':
-        sms_bombing_process()
-    elif choice == '2':
-        call_bombing_process()
-    else:
-        print("\n    \033[92m[\033[91m!\033[92m] \033[37mInvalid choice! Please enter 1 or 2.")
-        main_menu()
+    if choice == "1":
+        bombing_type = "SMS"
+        send_function = send_sms
+    elif choice == "2":
+        bombing_type = "Call"
+        send_function = make_call
 
-# SMS Bombing Process
-def sms_bombing_process():
-    main.number = getNumber()
-    main.amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of SMS to Send:> \033[37m"))
-    main.delay = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Delay Between Messages (seconds):> \033[37m"))
+    number = getNumber()
+    number = number[-10:]
+    main["number"] = number
     
+    amount = input(f"    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount (\033[92mDefault: 10\033[37m):> \033[37m")
+    try:
+        amount = int(amount)
+    except:
+        amount = 10
+    
+    main["amount"] = amount
+    
+    delay = input(f"    \033[92m[\033[37m*\033[92m] \033[37mEnter Time(\033[92mSec\033[37m) Delay (\033[92mDefault: 2s\033[37m):> \033[37m")
+    try:
+        delay = int(delay)
+    except:
+        delay = 2
+    
+    main["delay"] = delay
+    
+    time.sleep(1)
+    logo()
     banner()
-    
     sent = 0
-    while sent < main.amount:
-        if send_sms(main.number):
-            sent += 1
-        check(sent)
-
-# Call Bombing Process
-def call_bombing_process():
-    main.number = getNumber()
-    main.amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of Calls to Make:> \033[37m"))
     
-    banner()
+    items = RUNNABLE_ITEMS
+    finished = False
     
-    for _ in range(main.amount):
-        call_bomb(main.number)
-        time.sleep(1)  # Small delay between calls to avoid too rapid requests
+    # Running through all apis using Global Variables
+    allFuncs = globals()
+    if check(sent):
+        sys.exit()
+    
+    while True:
+        for i in range(1, items+1):
+            success = allFuncs["api_"+str(i)](number)
+            if (success):
+                sent += 1
+                if(check(sent)):
+                    finished = True
+                    break
+            
+        if (finished):
+            break
 
-if __name__ == "__main__":
+# Start Running Tool
+if (__name__ == "__main__"):
     checkPy()
+    from more.data import *
+    logo()
     update()
-    main_menu()
+    main()
