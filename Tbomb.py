@@ -6,13 +6,13 @@
 # Version: 5.0.0
 #########################################
 
-
 import time
 import requests
 import sys
 import os
 import shutil
 import json
+import random
 
 # Get Rows and Columns of Screen
 columns = shutil.get_terminal_size().columns
@@ -140,20 +140,6 @@ def check(sent):
         time.sleep(delay)
         return False
 
-# Get Target Number
-def getNumber():
-    number = input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Target (\033[92mWithout +88\033[37m):> \033[37m")
-    if not number.isdigit():
-        psb("\n    \033[92m[\033[91m!\
-    if not number.isdigit():
-        psb("\n    \033[92m[\033[91m!\033[92m] \033[37mPlease Enter a Correct Number!")
-        number = getNumber()
-    if not (len(number) == 11):
-        psb("\n    \033[92m[\033[91m!\033[92m] \033[37mPlease Enter 11 Digit Number!")
-        number = getNumber()
-    
-    return number
-
 # Function for SMS Bombing
 def sms_bombing_process():
     global main
@@ -176,46 +162,79 @@ def call_bombing_process():
     global main
     main.number = getNumber()
     main.amount = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount of Calls to Make:> \033[37m"))
-    main.delay = int(input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Delay Between Calls (in seconds):> \033[37m"))
-
+    
     banner()
+    
+    for _ in range(main.amount):
+        if call_bomb():
+            print(f"Call to {main.number} sent successfully.")
+        else:
+            print(f"Failed to send call to {main.number}.")
+        time.sleep(2)  # Adjust the delay between calls as needed
 
-    sent = 0
-    while sent < main.amount:
-        if call_bomb(main.number):
-            sent += 1
-        time.sleep(main.delay)
     print("\033[92m[\033[93m★\033[92m] Call Bombing Complete \033[92m[\033[93m★\033[92m]".center(columns + 30))
     print("\033[37m")
+
+# Get Target Number
+def getNumber():
+    number = input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter Target (\033[92mWithout +88\033[37m):> \033[37m")
+    if not number.isdigit():
+        psb("\n    \033[92m[\033[91m!\033[92m] \033[37mPlease Enter a Correct Number!")
+        number = getNumber()
+    if not (len(number) == 11):
+        psb("\n    \033[92m[\033[91m!\033[92m] \033[37mPlease Enter 11 Digit Number!")
+        number = getNumber()
+    
+    return number
+
+# Function to Send SMS (Placeholder)
+def send_sms(number):
+    try:
+        response = requests.post(
+            "https://api.smsservice.com/v1/send",
+            headers={"Authorization": "Bearer YOUR_API_KEY"},
+            json={"to": number, "message": "This is an SMS bomb!"}
+        )
+        if response.status_code == 200:
+            return True
+        else:
+            print(f"Failed to send SMS to {number}. Status code: {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False
+
+# Function to Bomb Calls (Placeholder for unknown numbers)
+def call_bomb():
+    try:
+        # Generate a random phone number
+        unknown_number = f"{random.randint(1000000000, 9999999999)}"
+        response = requests.post(
+            "https://api.callservice.com/v1/call",
+            headers={"Authorization": "Bearer YOUR_API_KEY"},
+            json={"to": unknown_number, "from": "YOUR_NUMBER", "message": "This is a call bomb!"}
+        )
+        if response.status_code == 200:
+            return True
+        else:
+            print(f"Failed to send call. Status code: {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False
 
 # Main Menu
 def main_menu():
     os.system("clear")
-    print("\033[94m┌────────────────────────────────────────┐".center(columns+5))
-    print("\033[94m│     \033[92m▀▛▘     ▗    ▛▀▖       ▌        \033[94m   │".center(columns+15))
-    print("\033[94m│     \033[92m ▌▞▀▖▚▗▘▄ ▞▀▖▙▄▘▞▀▖▛▚▀▖▛▀▖▞▀▖▙▀▖\033[94m   │".center(columns+15))
-    print("\033[94m│     \033[92m ▌▌ ▌▗▚ ▐ ▌ ▖▌ ▌▌ ▌▌▐ ▌▌ ▌▛▀ ▌  \033[94m   │".center(columns+15))
-    print("\033[94m│     \033[92m ▘▝▀ ▘ ▘▀▘▝▀ ▀▀ ▝▀ ▘▝ ▘▀▀ ▝▀▘▘  \033[94m   │".center(columns+15))
-    print("\033[94m│                              \033[94m          │".center(columns+9))
-    print("\033[94m│ \033[95mAuthor : ToxicNoob Inc.                \033[94m│".center(columns+15))
-    print("│ \033[95mTool   : SMS and Call Bomber           \033[94m│".center(columns+9))
-    print("│ \033[95mGitHub : https://github.com/Toxic-Noob \033[94m│".center(columns+9))
-    print("│ \033[95mCoder  : HunterSl4d3              \033[37mV5.0 \033[94m│".center(columns+15))
-    print("\033[94m└────────────────────────────────────────┘".center(columns+5))
-    
-    print("\n    \033[92m[\033[37m*\033[92m] \033[37mSelect an Option:")
-    print("    \033[92m[\033[37m1\033[92m] \033[37mSMS Bombing")
-    print("    \033[92m[\033[37m2\033[92m] \033[37mCall Bombing")
-    
-    choice = input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter your choice (1 or 2):> \033[37m")
+    logo()
+    choice = input("\n    \033[92m[\033[37m*\033[92m] \033[37mEnter your choice (1 for SMS, 2 for Call):> \033[37m")
     
     if choice == "1":
         sms_bombing_process()
     elif choice == "2":
         call_bombing_process()
     else:
-        psb("\n    \033[92m[\033[91m!\033[92m] \033[37mInvalid Choice! Please Select 1 or 2.")
-        time.sleep(1)
+        psb("\n    \033[92m[\033[91m!\033[92m] \033[37mInvalid Choice!")
         main_menu()
 
 if __name__ == "__main__":
