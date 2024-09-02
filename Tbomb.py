@@ -6,6 +6,7 @@
 # Version: 4.1.0
 #########################################
 
+
 import time
 import requests
 import sys
@@ -13,6 +14,7 @@ import os
 import shutil
 import json
 from twilio.rest import Client
+from random import randint
 
 # Get Rows and Columns of Screen
 columns = shutil.get_terminal_size().columns
@@ -97,28 +99,27 @@ def logo():
     print("\033[94m│     \033[92m ▘▝▀ ▘ ▘▀▘▝▀ ▀▀ ▝▀ ▘▝ ▘▀▀ ▝▀▘▘  \033[94m   │".center(columns+15))
     print("\033[94m│                              \033[94m          │".center(columns+9))
     print("\033[94m│ \033[95mAuthor : ToxicNoob Inc.                \033[94m│".center(columns+15))
-    print("│ \033[95mTool   : Unlimited SMS and Call Bomber \033[94m│".center(columns+9))
+    print("│ \033[95mTool   : Unlimited SMS Bomber          \033[94m│".center(columns+9))
     print("│ \033[95mGitHub : https://github.com/Toxic-Noob \033[94m│".center(columns+9))
     print("│ \033[95mCoder  : HunterSl4d3              \033[37mV4.1 \033[94m│".center(columns+15))
     print("\033[94m└────────────────────────────────────────┘".center(columns+5))
 
 # Options Banner
-def banner():
-    amount = str(main.amount)
-    amount = amount + (" " * (21-len(amount)))
+def banner(amount, number):
+    # 21 - 1(lenOfAmount) = 20....
+    amount_str = str(amount) + (" " * (21-len(str(amount))))
     
     print("\033[95m-" * (columns), end = "")
-    print(("\033[92mTarget  : \033[37m0" + main.number + "          ").center(columns + 10))
-    print(("\033[92mAmount  : \033[37m" + amount).center(columns + 10))
+    print(("\033[92mTarget  : \033[37m0" + number + "          ").center(columns + 10))
+    print(("\033[92mAmount  : \033[37m" + amount_str).center(columns + 10))
     print("\033[92mProcess : \033[37mStarted               ".center(columns + 10))
     print("\033[92mNote    : \033[37mPress ctrl + z To Stop".center(columns + 10))
     print("\033[95m-" * (columns), end = "")
     print("\n")
 
 # Check SMS Sent and Process
-def check(sent):
-    amount = main.amount
-    delay = main.delay
+def check(sent, amount):
+    delay = 2
     
     localTime = time.localtime()
     current_time = time.strftime("%I:%M:%S", localTime)
@@ -128,7 +129,7 @@ def check(sent):
     if (sent == amount):
         psb("\n\n\033[92m    [\033[37m*\033[92m] Bombing Finished!")
         psb("\033[92m    [\033[37m*\033[92m] Amount : \033[37m" + str(amount))
-        psb("\033[92m    [\033[37m*\033[92m] Target : \033[37m0" + main.number)
+        psb("\033[92m    [\033[37m*\033[92m] Target : \033[37m0" + number)
         psb("\033[92m    [\033[37m*\033[92m] From   : \033[37mToxicBomber\n")
         time.sleep(0.6)
         print("\033[92m[\033[93m★\033[92m] Thanks For Using Our Tool \033[92m[\033[93m★\033[92m]".center(columns + 30))
@@ -151,129 +152,85 @@ def getNumber():
     
     return number
 
-# Make Call Function
-def make_call(number):
-    # Your Twilio credentials
-    account_sid = 'YOUR_TWILIO_ACCOUNT_SID'
-    auth_token = 'YOUR_TWILIO_AUTH_TOKEN'
-    client = Client(account_sid, auth_token)
+# Call Bombing Function
+def call_bombing(number, amount):
+    # Replace with your Twilio credentials
+    ACCOUNT_SID = 'YOUR_ACCOUNT_SID'
+    AUTH_TOKEN = 'YOUR_AUTH_TOKEN'
+    FROM_NUMBER = 'YOUR_TWILIO_NUMBER'
 
-    try:
+    client = Client(ACCOUNT_SID, AUTH_TOKEN)
+    
+    for _ in range(amount):
+        to_number = '+880' + number  # Add country code if needed
         call = client.calls.create(
-            to=f"+{number}",  # International number format
-            from_='YOUR_TWILIO_PHONE_NUMBER',
-            twiml='<Response><Hangup/></Response>'  # Immediately hang up after connection
+            to=to_number,
+            from_=FROM_NUMBER,
+            url='http://demo.twilio.com/docs/voice.xml'  # Replace with your URL
         )
-        print(f"Call to {number} initiated successfully.")
-    except Exception as e:
-        print(f"Error initiating call: {e}")
-
-# Call Bombing Process
-def call_bombing_process():
-    global main
-    main.number = getNumber()
-    main.number = main.number[-10:]
-
-    amount = input("    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount (\033[92mDefault: 10\033[37m):> \033[37m")
-    try:
-        amount = int(amount)
-    except:
-        amount = 10
-    
-    main.amount = amount
-    
-    delay = input("    \033[92m[\033[37m*\033[92m] \033[37mEnter Time(\033[92mSec\033[37m) Delay (\033[92mDefault: 2s\033[37m):> \033[37m")
-    try:
-        delay = int(delay)
-    except:
-        delay = 2
-    
-    main.delay = delay
-
-    time.sleep(1)
-    logo()
-    banner()
-    sent = 0
-
-    while True:
-        make_call(main.number)
-        sent += 1
-        if check(sent):
-            break
+        print(f"Call initiated to {to_number}")
+        time.sleep(10)  # Adjust sleep time if needed
 
 # Main Menu
 def main_menu():
-    os.system("clear")
-    print("\033[94m┌────────────────────────────────────────┐".center(columns+5))
-    print("\033[94m│     \033[92mToxicBomber: SMS and Call Bombing    \033[94m   │".center(columns+15))
-    print("\033[94m│ \033[95m1. SMS Bombing                      \033[94m│".center(columns+15))
-    print("\033[94m│ \033[95m2. Call Bombing                     \033[94m│".center(columns+15))
-    print("\033[94m│ \033[95m0. Exit                            \033[94m│".center(columns+15))
-    print("\033[94m└────────────────────────────────────────┘".center(columns+5))
-
-    choice = input("\n    \033[92m[\033[37m*\033[92m] \033[37mSelect an option:> \033[37m")
-
-    if choice == '1':
-        sms_bombing_process()
-    elif choice == '2':
-        call_bombing_process()
-    elif choice == '0':
-        sys.exit()
+    print("\n    \033[92m[\033[37m*\033[92m] \033[37mChoose an Option:")
+    print("    \033[92m[\033[37m1\033[92m] \033[37mSMS Bombing")
+    print("    \033[92m[\033[37m2\033[92m] \033[37mCall Bombing")
+    
+    option = input("    \033[92m[\033[37m*\033[92m] \033[37mSelect Option:> \033[37m")
+    
+    if option == '1':
+        # SMS Bombing Code
+        number = getNumber()
+        number = number[-10:]
+        amount = int(input("    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount (\033[92mDefault: 10\033[37m):> \033[37m") or 10)
+        delay = int(input("    \033[92m[\033[37m*\033[92m] \033[37mEnter Time(\033[92mSec\033[37m) Delay (\033[92mDefault: 2s\033[37m):> \033[37m") or 2)
+        
+        time.sleep(1)
+        logo()
+        banner(amount, number)
+        sent = 0
+        
+        items = RUNNABLE_ITEMS
+        finished = False
+        
+        # Running through all apis using Global Variables
+        allFuncs = globals()
+        if check(sent, amount):
+            sys.exit()
+        
+        while True:
+            for i in range(1, items+1):
+                success = allFuncs["api_"+str(i)](number)
+                if (success):
+                    sent += 1
+                    if(check(sent, amount)):
+                        finished = True
+                        break
+                
+            if (finished):
+                break
+    
+    elif option == '2':
+        # Call Bombing Code
+        number = getNumber()
+        number = number[-10:]
+        amount = int(input("    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount (\033[92mDefault: 10\033[37m):> \033[37m") or 10)
+        
+        time.sleep(1)
+        logo()
+        banner(amount, number)
+        call_bombing(number, amount)
+    
     else:
-        psb("\n    \033[92m[\033[91m!\033[92m] \033[37mInvalid Option! Try Again.")
+        print("\n    \033[92m[\033[91m!\033[92m] \033[37mInvalid Option Selected!")
+        time.sleep(1)
         main_menu()
-
-# SMS Bombing Process
-def sms_bombing_process():
-    global main
-    main.number = getNumber()
-    main.number = main.number[-10:]
-
-    amount = input("    \033[92m[\033[37m*\033[92m] \033[37mEnter Amount (\033[92mDefault: 10\033[37m):> \033[37m")
-    try:
-        amount = int(amount)
-    except:
-        amount = 10
-    
-    main.amount = amount
-    
-    delay = input("    \033[92m[\033[37m*\033[92m] \033[37mEnter Time(\033[92mSec\033[37m) Delay (\033[92mDefault: 2s\033[37m):> \033[37m")
-    try:
-        delay = int(delay)
-    except:
-        delay = 2
-    
-    main.delay = delay
-
-    time.sleep(1)
-    logo()
-    banner()
-    sent = 0
-
-    items = RUNNABLE_ITEMS
-    finished = False
-    
-    # Running through all APIs using Global Variables
-    allFuncs = globals()
-    if check(sent):
-        sys.exit()
-    
-    while True:
-        for i in range(1, items+1):
-            success = allFuncs["api_"+str(i)](main.number)
-            if success:
-                sent += 1
-                if check(sent):
-                    finished = True
-                    break
-            
-        if finished:
-            break
 
 # Start Running Tool
 if (__name__ == "__main__"):
     checkPy()
-    from more.data import *
+    from more.data import *  # Ensure that this import works in your environment
     logo()
     update()
     main_menu()
